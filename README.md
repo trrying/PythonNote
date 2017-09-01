@@ -1,0 +1,2 @@
+# PythonNote
+init!
