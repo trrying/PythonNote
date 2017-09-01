@@ -27,11 +27,11 @@ user = {'Trry', 123, 3.14, 'ocean'}
 # python 可以使用print() 直接输出列表的内容，但是不是按照顺序的
 print(user)
 # 使用 user[0] 可以使用下标来获取对应的元素
-print(user[0])
+# print(user[0])
 
 
 
-
+input("\n\n 按下 enter 键")
 
 
 
