@@ -29,15 +29,33 @@ print(user)
 # 使用 user[0] 可以使用下标来获取对应的元素
 # print(user[0])
 
+list = ['abc', 789, 2.34, 'round']
+tinyList = [123, 'run']
+
+print(list[0])
+print(list[-3:-1])
+
+print(list + tinyList)
+print(list * 2)
 
 
-input("\n\n 按下 enter 键")
+student = {'tom', 'jim', 'mary', 'jack', 'tom'}
+print(student)
+print('tom' in student)
 
+a = set('abcdefocean')
+b = {'bdfopq'}
+print(a-b)  #差集
+print(a|b)  #并集
+print(a&b)  #交集
+print(a^b)  #a和b中不同时存在的元素
 
-
-
-
-
+dict = {}
+dict['one'] = "1-第一题"
+dict[2] = "第二题"
+print(dict)
+tinyDict = {'name':'rouoob', "tian":456}
+print(tinyDict)
 
 
 
