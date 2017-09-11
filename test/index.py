@@ -1,4 +1,4 @@
-
+import time
 
 # python 3.x 开始 print() 是一个方法， 2.x之前 print ""  直接输入
 print("Hello word!")
@@ -38,6 +38,11 @@ print(list[-3:-1])
 print(list + tinyList)
 print(list * 2)
 
+# 循环list
+print("循环")
+for str in list:
+    print(str)
+
 
 student = {'tom', 'jim', 'mary', 'jack', 'tom'}
 print(student)
@@ -55,16 +60,18 @@ dict['one'] = "1-第一题"
 dict[2] = "第二题"
 print(dict)
 tinyDict = {'name':'rouoob', "tian":456}
+print("tinyDict : ")
 print(tinyDict)
 
 
+result = "\u667a\u80fd\u6392\u5e8f"
+print(result.encode())
+
+intString = "123"
+print(int(intString))
 
 
-
-
-
-
-
+print(int(time.time()))
 
 
 

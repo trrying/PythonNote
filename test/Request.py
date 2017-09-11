@@ -1,8 +1,3 @@
-'''
-Created on 2014年4月22日
-
-@author: dev.keke@gmail.com
-'''
 import urllib.request
 import json
 import pymysql
