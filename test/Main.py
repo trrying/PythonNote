@@ -27,52 +27,13 @@ print("plazaList : ")
 print(plazaList)
 
 # 打开数据库连接
-db = pymysql.connect("192.168.1.4", "root", "12345", "spider")
-# db = pymysql.connect("192.168.1.4", "root", "12345", "spider", "charset='utf-8'")
-
-# host=None, user=None, password="",
-#                  database=None, port=0, unix_socket=None,
-#                  charset=''
+db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
 cursor = db.cursor()
-
-# `fp_id` bigint(20) NOT NULL AUTO_INCREMENT,
-#   `fp_p_id` bigint(20) NOT NULL COMMENT '飞凡自己的场景ID',
-#   `fp_p_name` varchar(100) NOT NULL COMMENT '飞凡的场景名称',
-#   `fp_p_address` varchar(100) NOT NULL COMMENT '飞凡的场景地址',
-#   `fp_city` varchar(100) NOT NULL COMMENT '飞凡的场景所在城市',
-#   `fp_city_id` bigint(20) NOT NULL COMMENT '飞凡的场景所在城市ID',
-#   `p_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '及刻场景ID',
-#   `fp_create_time` bigint(13) NOT NULL DEFAULT '0' COMMENT '创建时间',
-#   `fp_update_time` bigint(13) NOT NULL DEFAULT '0' COMMENT '更新时间',
-#   `fp_delete_time` bigint(13) NOT NULL DEFAULT '0' COMMENT '删除时间',
-
-# {'cityId': '440100', 'cityName': '广州市', 'id': '1104634', 'pic': 'T1J6JvBXZb1RCvBVdK', 'plazaAddress': '广州市增城区新塘镇增城久裕商贸城b6栋',
-# 'plazaId': '1104634', 'plazaName': '广州万和百货久裕店\u3000', 'plazaType': 2, 'type': 'plaza', 'icon': [{'title': '百货', 'type': 'department'}]}
 
 baseInsertSql = """
 insert into ffan_poi (fp_p_id, fp_p_name, fp_p_address, fp_city, fp_city_id, fp_create_time)
 VALUES ('%d', '%s', '%s', '%s', '%d', '%d')
 """
-# VALUES ('%d', '%s', '%s', '%s', '%d', '%d')
-
-# cityId: 440100
-# cityName: 广州市
-# distance: 2.0km
-# distanceOri: 1.9508125621643
-# id: 1100163
-# pic: T1t5KvBsYX1RCvBVdK
-# plazaAddress: 天河区体育西路191号中石化大厦
-# plazaId: 1100163
-# plazaName: 广州佳兆业广场
-# plazaType: 1
-# type: plaza
-# icon: [{"title": "购物中心", "type": "shopping"}, {"title": "免费WiFi", "type": "wifi"}]
-
-# id: 1100163
-# plazaName: 广州佳兆业广场
-# plazaAddress: 天河区体育西路191号中石化大厦
-# cityName: 广州市
-# cityId: 440100
 
 for plaza in plazaList:
     try:
