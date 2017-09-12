@@ -1,4 +1,7 @@
 import time
+import otherModule
+import util.time_utils
+import math
 
 # python 3.x 开始 print() 是一个方法， 2.x之前 print ""  直接输入
 print("Hello word!")
@@ -39,9 +42,9 @@ print(list + tinyList)
 print(list * 2)
 
 # 循环list
-print("循环")
-for str in list:
-    print(str)
+# print("循环")
+# for str in list:
+#     print(str)
 
 
 student = {'tom', 'jim', 'mary', 'jack', 'tom'}
@@ -72,6 +75,59 @@ print(int(intString))
 
 
 print(int(time.time()))
+
+
+def get_data():
+    data = {'name': 'rouoob', "tian": 456}
+
+    return data
+
+print("data : " + str(get_data()))
+
+
+for i in range(5):
+    print("1 for i = " + str(i))
+    for k in range(3):
+        if k == 2:
+            break
+        print("2 for k = " + str(k))
+
+print("otherModule = " + str(otherModule.get_set()))
+
+def get_current_time():
+    return int(time.time() * 1000)
+
+print("getCurrentTime : " + str(get_current_time()))
+
+# low = [5, 5, 7]
+# for index, plaza in enumerate(low):
+#     print(str(int((index+1) / (len(low))*100))+"%")
+#     print('index is %d, val is %d' % (index, plaza))
+
+
+# def get_time(time_str):
+#     return time.mktime(time.strptime(time_str, "%Y.%m.%d"))
+
+print(util.time_utils.get_time("2017.09.04"))
+
+numcou = 8
+print("zhe ge shi %s" % (numcou))
+
+thread_count = 5
+textSizeList = range(27)
+thread_data_size = math.ceil(len(textSizeList) / thread_count)
+print(thread_data_size)
+for i in range(thread_count):
+    begin = i * thread_data_size
+    end = (i + 1) * thread_data_size
+    print(textSizeList[begin:end])
+
+
+
+
+
+
+
 
 
 
