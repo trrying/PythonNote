@@ -7,27 +7,26 @@ import threading
 import math
 
 
-def get_coupon(thread_name, data_list):
+def get_data(thread_name, data_list):
     # 打开数据库连接
     db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
     cursor = db.cursor()
 
     print("plaza_list len : %d " % (len(data_list)))
 
-    base_coupons_list_url = "https://api.ffan.com/ffan/v1/city/coupons?size=%d&offset=%d&plazaId=%s&cityId=%s"
+    # base_coupons_list_url = "https://api.ffan.com/ffan/v1/city/coupons?size=%d&offset=%d&plazaId=%s&cityId=%s"
+    base_coupons_list_url = "https://api.ffan.com/ffan/v1/city/activities?size=%s&offset=%s&plazaId=%s&cityId=%s"
     size = 50
 
-    base_count_sql = "select count(*) from ffan_coupon where fp_p_id = '%s' and fc_aid = '%s'"
+    base_count_sql = "select count(*) from ffan_news where fp_p_id = '%s' and fn_aid = '%s'"
 
-    base_update_sql = """update ffan_coupon set fc_title='%s', fc_subtitle='%s', fc_origin_price='%s', fc_market_price='%s'
-                      , fc_price='%s', fc_logo='%s', fc_sale_num='%s', fc_sold_num='%s'
-                      , fc_start_time='%s', fc_end_time='%s', fc_operate_time='%s' WHERE fp_p_id = '%s' and fc_aid = '%s'
+    base_update_sql = """update ffan_news set fn_title='%s', fn_description='%s', fn_subtitle='%s', fn_logo='%s'
+                      , fn_start_time='%s', fn_end_time='%s', fn_operate_time='%s' where fp_p_id = '%s' and fn_aid = '%s'
                       """
 
-    base_insert_sql = """insert into ffan_coupon (fc_title, fc_subtitle, fc_origin_price, fc_market_price, fc_price,
-                      fp_p_id, fc_aid, fc_logo, fc_sale_num, fc_sold_num, 
-                      fc_start_time, fc_end_time, fc_create_time)
-                      VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')"""
+    base_insert_sql = """insert into ffan_news (fn_title, fn_description, fn_subtitle, fn_logo,
+                      fn_start_time, fn_end_time, fn_aid, fp_p_id, fn_create_time)
+                      VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')"""
 
     for index, plaza in enumerate(data_list):
         offset = 0
@@ -56,6 +55,7 @@ def get_coupon(thread_name, data_list):
                     data_bean['startDate'] = util.time_utils.get_time(data_bean['startDate'])
                     data_bean['endDate'] = util.time_utils.get_time(data_bean['endDate'])
                     data_bean['title'] = data_bean['title'].replace("'", "''")
+                    data_bean['description'] = data_bean['description'].replace("'", "''")
                     data_bean['subtitle'] = data_bean['subtitle'].replace("'", "''")
 
                     count_sql = base_count_sql % (data_bean['plazaId'], data_bean['id'])
@@ -64,23 +64,21 @@ def get_coupon(thread_name, data_list):
                     try:
                         if count_sql_result[0] > 0:
                             # print("update data_bean : %s" % (str(data_bean)))
-                            update_sql = base_update_sql % (data_bean['title'], data_bean['subtitle'], data_bean['oriPrice'], data_bean['marketPrice'],
-                                                            data_bean['price'], data_bean['pic'], data_bean['saleNum'], data_bean['soldNum'],
+                            update_sql = base_update_sql % (data_bean['title'], data_bean['description'], data_bean['subtitle'], data_bean['pic'],
                                                             data_bean['startDate'], data_bean['endDate'], "0", data_bean['plazaId'], data_bean['id'])
                             # print(update_sql)
                             update_count += cursor.execute(update_sql)
                         else:
                             # print("insert data_bean : %s" % (str(data_bean)))
-                            insert_sql = base_insert_sql % (data_bean['title'], data_bean['subtitle'], data_bean['oriPrice'], data_bean['marketPrice'], data_bean['price'],
-                                                            data_bean['plazaId'], data_bean['id'], data_bean['pic'], data_bean['saleNum'], data_bean['soldNum'],
-                                                            data_bean['startDate'], data_bean['endDate'], util.time_utils.get_current_time())
+                            insert_sql = base_insert_sql % (data_bean['title'], data_bean['description'], data_bean['subtitle'], data_bean['pic'],
+                                                            data_bean['startDate'], data_bean['endDate'], data_bean['id'], data_bean['plazaId'], util.time_utils.get_current_time())
                             # print(insert_sql)
                             insert_count += cursor.execute(insert_sql)
                         db.commit()
                     except:
                         db.rollback()
                         print("execute sql fail " + plaza_city_name + " " + plaza_name, sys.exc_info())
-                print("ffan_coupon  operate db threadName : %s  data.len : %d  progress : %s  result_data len : %s  insertCount : %d  updateCount : %d  offset : %d  retry_count : %d"
+                print("ffan_news  operate db threadName : %s  data.len : %d  progress : %s  result_data len : %s  insertCount : %d  updateCount : %d  offset : %d  retry_count : %d"
                       % (thread_name, len(data_list), str(int((index+1) / (len(data_list))*100))+"%", len(result_data_list), insert_count, update_count, offset, retry_count))
                 if int(result_data['info']['more']) > 0:
                     offset += size
@@ -99,10 +97,10 @@ class OperateThread(threading.Thread):
         self.dataList = data_list
 
     def run(self):
-        get_coupon(self.threadId, self.dataList)
+        get_data(self.threadId, self.dataList)
 
 
-def start_get_coupon():
+def start_get_data():
     thread_count = 5
     # 打开数据库连接
     db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
@@ -120,7 +118,7 @@ def start_get_coupon():
         OperateThread(i+1, sql_result[begin:end]).start()
 
 
-start_get_coupon()
+start_get_data()
 
 
 

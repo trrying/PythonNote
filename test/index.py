@@ -2,6 +2,7 @@ import time
 import otherModule
 import util.time_utils
 import math
+import json
 
 # python 3.x 开始 print() 是一个方法， 2.x之前 print ""  直接输入
 print("Hello word!")
@@ -123,14 +124,21 @@ for i in range(thread_count):
     print(textSizeList[begin:end])
 
 
+fc_apply_store = {}
+fc_apply_store['1'] = "新天美美甲美睫会所"
+fc_apply_store['2'] = "新天美美甲美"
+print(json.dumps(fc_apply_store))
 
+print(str(fc_apply_store).replace("'", "\""))
 
+print(len(""))
 
+print(str("中国大是大非"))
 
-
-
-
-
+if len("123"):
+    print("true")
+else:
+    print("false")
 
 
 
