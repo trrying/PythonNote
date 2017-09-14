@@ -5,6 +5,7 @@ import pymysql
 import threading
 import math
 import util.time_utils
+import re
 
 def get_detail(thread_name, data_list):
     # 打开数据库连接
@@ -14,7 +15,7 @@ def get_detail(thread_name, data_list):
 
     baseUrl = "http://h5.ffan.com/app/activity?aid=%s&cityId=%s&plazaId=%s&display_type=html"
 
-    base_update_sql = """update ffan_news set fn_apply_sotre='%s', fn_details='%s' fn_update_time='%s' WHERE fp_p_id = '%s' and fn_aid = '%s'"""
+    base_update_sql = """update ffan_news set fn_apply_store='%s', fn_details='%s', fn_update_time='%s' WHERE fp_p_id = '%s' and fn_aid = '%s'"""
 
     for index, data_bean in enumerate(data_list):
         retry_count = 0
@@ -30,7 +31,7 @@ def get_detail(thread_name, data_list):
                 # print("url "+url)
                 html = urlopen(url)
                 # print("html "+str(html))
-                bs = BeautifulSoup(html, "lxml")
+                bs = BeautifulSoup(html, 'lxml')
 
                 # {name:''门店名称'',address:''门店地址'', logo:''门店logo地址'',phone:''门店电话'', location:''经度,纬度''}
                 fc_apply_store = {}
@@ -89,17 +90,17 @@ def get_detail(thread_name, data_list):
                         fc_apply_store_json = ""
                         if len(fc_apply_store):
                             fc_apply_store_json = str(fc_apply_store).replace("'", "\"")
-                        update_sql = base_update_sql % (fc_apply_store_json, fc_apply_store_json, util.time_utils.get_current_time(), plaza_id, aid)
+                        update_sql = base_update_sql % (fc_apply_store_json, fc_more_details, util.time_utils.get_current_time(), plaza_id, aid)
                         # print("update_sql : " + update_sql)
                         update_count = cursor.execute(update_sql)
                         db.commit()
                     except Exception as e:
                         print(e)
                         db.rollback()
-                        print("execute sql fail " + update_sql)
-                print("ffan_news  update db threadName : %s  data.len : %d  progress : %s  updateCount : %d  retry_count : %d"
+                        print("url : " + url +"\n" + "execute sql fail " + update_sql)
+                print("ffan_news  update db threadName : %s  data.len : %d  progress : %s  updateCount : %d  retry_count : %d  aid : %s  plaza_id : %s"
                     % (thread_name, len(data_list), str(int((index + 1) / (len(data_list)) * 100)) + "%",
-                       update_count, retry_count))
+                       update_count, retry_count, aid, plaza_id))
                 break
             except Exception as e:
                 print(e)
