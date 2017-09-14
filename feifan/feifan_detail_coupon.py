@@ -4,6 +4,7 @@ from urllib import parse
 import pymysql
 import threading
 import math
+import util.time_utils
 
 def get_detail(thread_name, data_list):
     # 打开数据库连接
@@ -13,7 +14,7 @@ def get_detail(thread_name, data_list):
 
     baseUrl = "http://h5.ffan.com/app/coupon?cid=%s&cityId=%s&plazaId=%s&display_type=html"
 
-    base_update_sql = """update ffan_coupon set fc_apply_store='%s', fc_more_details='%s', fc_operate_time='%s' WHERE fp_p_id = '%s' and fc_aid = '%s'"""
+    base_update_sql = """update ffan_coupon set fc_apply_store='%s', fc_more_details='%s', fc_update_time='%s' WHERE fp_p_id = '%s' and fc_aid = '%s'"""
 
     for index, data_bean in enumerate(data_list):
         retry_count = 0
@@ -88,7 +89,7 @@ def get_detail(thread_name, data_list):
                         fc_apply_store_json = ""
                         if len(fc_apply_store):
                             fc_apply_store_json = str(fc_apply_store).replace("'", "\"")
-                        update_sql = base_update_sql % (fc_apply_store_json, fc_more_details, "0", plaza_id, cid)
+                        update_sql = base_update_sql % (fc_apply_store_json, fc_more_details, util.time_utils.get_current_time(), plaza_id, cid)
                         # print("update_sql : " + update_sql)
                         update_count = cursor.execute(update_sql)
                         db.commit()

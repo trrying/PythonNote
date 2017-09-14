@@ -3,10 +3,13 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from urllib import parse
 
-# html = urlopen("http://h5.ffan.com/app/coupon?cid=20170706101934&cityId=110100&plazaId=1000265&display_type=html")
-html = urlopen("http://h5.ffan.com/app/activity?plazaId=1100796&cityId=110100&aid=93170&display_type=html")
+html = urlopen("http://h5.ffan.com/app/coupon?cid=20170706101934&cityId=110100&plazaId=1000265&display_type=html")
+# html = urlopen("http://h5.ffan.com/app/activity?plazaId=1100796&cityId=110100&aid=93170&display_type=html")
 bs = BeautifulSoup(html, "lxml")  # 将html对象转化为BeautifulSoup对象
 print(bs.title)  # 输出这个网页中的标题
+
+f_limit = bs.find("span", {"class": "limit"}).text
+print(f_limit)
 
 # 获取门店名称和地址
 name_list = bs.find("div", {"class": "txt"})

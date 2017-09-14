@@ -141,6 +141,16 @@ else:
     print("false")
 
 
+class LogInfo:
+    log = ""
 
+    def append(self, msg):
+        log += msg + "\n"
+
+    def print(self):
+        print(log)
+
+    def get_log(self):
+        return log
 
 

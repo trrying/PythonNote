@@ -21,7 +21,7 @@ def get_coupon(thread_name, data_list):
 
     base_update_sql = """update ffan_coupon set fc_title='%s', fc_subtitle='%s', fc_origin_price='%s', fc_market_price='%s'
                       , fc_price='%s', fc_logo='%s', fc_sale_num='%s', fc_sold_num='%s'
-                      , fc_start_time='%s', fc_end_time='%s', fc_operate_time='%s' WHERE fp_p_id = '%s' and fc_aid = '%s'
+                      , fc_start_time='%s', fc_end_time='%s', fc_update_time='%s' WHERE fp_p_id = '%s' and fc_aid = '%s'
                       """
 
     base_insert_sql = """insert into ffan_coupon (fc_title, fc_subtitle, fc_origin_price, fc_market_price, fc_price,
@@ -66,7 +66,7 @@ def get_coupon(thread_name, data_list):
                             # print("update data_bean : %s" % (str(data_bean)))
                             update_sql = base_update_sql % (data_bean['title'], data_bean['subtitle'], data_bean['oriPrice'], data_bean['marketPrice'],
                                                             data_bean['price'], data_bean['pic'], data_bean['saleNum'], data_bean['soldNum'],
-                                                            data_bean['startDate'], data_bean['endDate'], "0", data_bean['plazaId'], data_bean['id'])
+                                                            data_bean['startDate'], data_bean['endDate'], util.time_utils.get_current_time(), data_bean['plazaId'], data_bean['id'])
                             # print(update_sql)
                             update_count += cursor.execute(update_sql)
                         else:

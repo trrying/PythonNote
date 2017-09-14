@@ -21,7 +21,7 @@ def get_data(thread_name, data_list):
     base_count_sql = "select count(*) from ffan_news where fp_p_id = '%s' and fn_aid = '%s'"
 
     base_update_sql = """update ffan_news set fn_title='%s', fn_description='%s', fn_subtitle='%s', fn_logo='%s'
-                      , fn_start_time='%s', fn_end_time='%s', fn_operate_time='%s' where fp_p_id = '%s' and fn_aid = '%s'
+                      , fn_start_time='%s', fn_end_time='%s', fn_update_time='%s' where fp_p_id = '%s' and fn_aid = '%s'
                       """
 
     base_insert_sql = """insert into ffan_news (fn_title, fn_description, fn_subtitle, fn_logo,
@@ -65,7 +65,7 @@ def get_data(thread_name, data_list):
                         if count_sql_result[0] > 0:
                             # print("update data_bean : %s" % (str(data_bean)))
                             update_sql = base_update_sql % (data_bean['title'], data_bean['description'], data_bean['subtitle'], data_bean['pic'],
-                                                            data_bean['startDate'], data_bean['endDate'], "0", data_bean['plazaId'], data_bean['id'])
+                                                            data_bean['startDate'], data_bean['endDate'], util.time_utils.get_current_time(), data_bean['plazaId'], data_bean['id'])
                             # print(update_sql)
                             update_count += cursor.execute(update_sql)
                         else:
