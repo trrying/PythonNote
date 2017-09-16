@@ -2,7 +2,8 @@ import urllib.request
 import json
 import pymysql
 import time
-import sys
+import ffan_db_config
+
 
 def get_plaza():
     city_list = get_city_list()
@@ -13,8 +14,10 @@ def get_plaza():
     size = 50
 
     # 打开数据库连接
-    db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
+    db = pymysql.connect(ffan_db_config.host, ffan_db_config.user_name, ffan_db_config.password,
+                         ffan_db_config.database_name, charset=ffan_db_config.charset)
     cursor = db.cursor()
+
     baseInsertSql = """
     insert into ffan_poi (fp_p_id, fp_p_name, fp_p_address, fp_city, fp_city_id, fp_create_time)
     VALUES ('%s', '%s', '%s', '%s', '%s', '%s')
@@ -49,9 +52,9 @@ def get_plaza():
                             insert_sql = baseInsertSql % (plaza['id'], plaza['plazaName'], plaza['plazaAddress'], plaza['cityName'], plaza['cityId'], get_current_time())
                             insert_count += cursor.execute(insert_sql)
                         db.commit()
-                    except:
+                    except BaseException as e:
                         db.rollback()
-                        print("execute sql fail " + plaza['cityName'] + " " + plaza['plazaName'], sys.exc_info())
+                        print("execute sql fail " + plaza['cityName'] + " " + plaza['plazaName'] + str(e))
                 print("insert city : %s  len : %d  insertCount : %d  updateCount : %d  total : %s  page : %d"
                       % (city['cityName'], len(plaza_list), insert_count, update_count, plaza_data['total'], page))
                 # print("insert city " + city['cityName'] + " len : " + str(len(plaza_list)) + " insertCount : " +
@@ -60,8 +63,8 @@ def get_plaza():
                     break
                 else:
                     page += 1
-        except:
-            print("except = " + str(city))
+        except BaseException as e:
+            print("except = " + str(city) + " error : " + str(e))
     db.close()
 
 
@@ -76,6 +79,8 @@ def get_current_time():
     return int(time.time() * 1000)
 
 
+if __name__ == "__main__":
+    get_plaza()
 
 
 

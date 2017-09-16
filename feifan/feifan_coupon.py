@@ -5,11 +5,14 @@ import sys
 import util.time_utils
 import threading
 import math
+import ffan_db_config
 
 
 def get_coupon(thread_name, data_list):
     # 打开数据库连接
-    db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
+    # db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
+    db = pymysql.connect(ffan_db_config.host, ffan_db_config.user_name, ffan_db_config.password,
+                         ffan_db_config.database_name, charset=ffan_db_config.charset)
     cursor = db.cursor()
 
     print("plaza_list len : %d " % (len(data_list)))
@@ -120,7 +123,8 @@ def start_get_coupon():
         OperateThread(i+1, sql_result[begin:end]).start()
 
 
-start_get_coupon()
+if __name__ == "__main__":
+    start_get_coupon()
 
 
 

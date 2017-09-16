@@ -5,11 +5,15 @@ import pymysql
 import threading
 import math
 import util.time_utils
-import re
+import ffan_db_config
+
 
 def get_detail(thread_name, data_list):
     # 打开数据库连接
-    db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
+    print(ffan_db_config.get_info())
+
+    db = pymysql.connect(ffan_db_config.host, ffan_db_config.user_name, ffan_db_config.password,
+                         ffan_db_config.database_name, charset=ffan_db_config.charset)
     cursor = db.cursor()
     print("data_list len : %d " % (len(data_list)))
 
@@ -135,7 +139,8 @@ def get_all_coupon():
         OperateThread(i+1, sql_result[begin:end]).start()
 
 
-get_all_coupon()
+if __name__ == "__main__":
+    get_all_coupon()
 
 
 

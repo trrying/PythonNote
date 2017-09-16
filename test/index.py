@@ -3,6 +3,7 @@ import otherModule
 import util.time_utils
 import math
 import json
+import test_config
 
 # python 3.x 开始 print() 是一个方法， 2.x之前 print ""  直接输入
 print("Hello word!")
@@ -141,16 +142,12 @@ else:
     print("false")
 
 
-class LogInfo:
-    log = ""
+print(test_config.get_db_config().get_info())
 
-    def append(self, msg):
-        log += msg + "\n"
+print(test_config.charset)
 
-    def print(self):
-        print(log)
 
-    def get_log(self):
-        return log
+
+
 
 
