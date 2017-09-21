@@ -4,6 +4,7 @@ import util.time_utils
 import math
 import json
 import test_config
+import datetime
 
 # python 3.x 开始 print() 是一个方法， 2.x之前 print ""  直接输入
 print("Hello word!")
@@ -145,6 +146,38 @@ else:
 print(test_config.get_db_config().get_info())
 
 print(test_config.charset)
+
+
+# def get_db():
+#     return "1", 2.2
+#
+# # result_one, result_two = get_config()
+#
+# print(result_one)
+# print(result_two)
+
+
+
+print(datetime.datetime.now().hour)
+print(datetime.datetime.now())
+
+# while 1:
+#     print(datetime.datetime.now().weekday())
+#     time.sleep(1*5)
+
+
+localtime = time.localtime()
+weekday = time.strftime("%w", localtime)
+print(weekday)
+
+
+
+
+
+
+
+
+
 
 
 

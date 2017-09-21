@@ -10,11 +10,7 @@ import ffan_db_config
 
 def get_data(thread_name, data_list):
     # 打开数据库连接
-    # db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
-    db = pymysql.connect(ffan_db_config.host, ffan_db_config.user_name, ffan_db_config.password,
-                         ffan_db_config.database_name, charset=ffan_db_config.charset)
-    cursor = db.cursor()
-
+    db, cursor = ffan_db_config.get_db_config()
 
     print("plaza_list len : %d " % (len(data_list)))
 
@@ -22,15 +18,44 @@ def get_data(thread_name, data_list):
     base_coupons_list_url = "https://api.ffan.com/ffan/v1/city/activities?size=%s&offset=%s&plazaId=%s&cityId=%s"
     size = 50
 
-    base_count_sql = "select count(*) from ffan_news where fp_p_id = '%s' and fn_aid = '%s'"
+    base_count_sql = "select count(*) from ffan_news where fp_p_id = '%(fp_p_id)s' and fn_aid = '%(fn_aid)s'"
 
-    base_update_sql = """update ffan_news set fn_title='%s', fn_description='%s', fn_subtitle='%s', fn_logo='%s'
-                      , fn_start_time='%s', fn_end_time='%s', fn_update_time='%s' where fp_p_id = '%s' and fn_aid = '%s'
+    base_update_sql = """
+                      update ffan_news set 
+                      fn_title='%(fn_title)s', 
+                      fn_description='%(fn_description)s', 
+                      fn_subtitle='%(fn_subtitle)s', 
+                      fn_logo='%(fn_logo)s', 
+                      fn_start_time='%(fn_start_time)s', 
+                      fn_end_time='%(fn_end_time)s', 
+                      fn_update_time='%(fn_update_time)s' 
+                      where fp_p_id = '%(fp_p_id)s' and fn_aid = '%(fn_aid)s'
                       """
 
-    base_insert_sql = """insert into ffan_news (fn_title, fn_description, fn_subtitle, fn_logo,
-                      fn_start_time, fn_end_time, fn_aid, fp_p_id, fn_create_time)
-                      VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')"""
+    base_insert_sql = """
+                      insert into ffan_news (
+                      fn_title, 
+                      fn_description, 
+                      fn_subtitle, 
+                      fn_logo,
+                      fn_start_time, 
+                      fn_end_time, 
+                      fp_p_id, 
+                      fn_aid, 
+                      fn_create_time)
+                      VALUES (
+                      '%(fn_title)s', 
+                      '%(fn_description)s', 
+                      '%(fn_subtitle)s', 
+                      '%(fn_logo)s', 
+                      '%(fn_start_time)s', 
+                      '%(fn_end_time)s', 
+                      '%(fp_p_id)s',
+                      '%(fn_aid)s',  
+                      '%(fn_create_time)s')
+                      """
+
+    start_time = util.time_utils.get_current_time()
 
     for index, plaza in enumerate(data_list):
         offset = 0
@@ -40,14 +65,19 @@ def get_data(thread_name, data_list):
                 # 只重试2次
                 if retry_count > 2:
                     break
+
+                # 取出数据库查询的值
                 plaza_id = plaza[0]
                 plaza_name = plaza[1]
                 plaza_city_id = plaza[2]
                 plaza_city_name = plaza[3]
 
+                # 拼接url，请求获取数据
                 url = base_coupons_list_url % (size, offset, plaza_id, plaza_city_id)
-                result_response = urllib.request.urlopen(url)
-                result_json_str = result_response.read().decode('utf-8')
+                result_json_str = ffan_db_config.request(url)
+                # print("result_json_str : " + result_json_str)
+
+                # 解析json字符串
                 response_result = json.loads(result_json_str)
                 result_data = response_result['data']
                 result_data_list = result_data['list']
@@ -62,24 +92,43 @@ def get_data(thread_name, data_list):
                     data_bean['description'] = data_bean['description'].replace("'", "''")
                     data_bean['subtitle'] = data_bean['subtitle'].replace("'", "''")
 
-                    count_sql = base_count_sql % (data_bean['plazaId'], data_bean['id'])
+                    count_sql = base_count_sql % {'fp_p_id': data_bean['plazaId'], 'fn_aid': data_bean['id']}
                     cursor.execute(count_sql)
                     count_sql_result = cursor.fetchone()
                     try:
                         if count_sql_result[0] > 0:
                             # print("update data_bean : %s" % (str(data_bean)))
-                            update_sql = base_update_sql % (data_bean['title'], data_bean['description'], data_bean['subtitle'], data_bean['pic'],
-                                                            data_bean['startDate'], data_bean['endDate'], util.time_utils.get_current_time(), data_bean['plazaId'], data_bean['id'])
+                            update_sql = base_update_sql % {
+                                'fn_title': data_bean['title'],
+                                'fn_description': data_bean['description'],
+                                'fn_subtitle': data_bean['subtitle'],
+                                'fn_logo': data_bean['pic'],
+                                'fn_start_time': data_bean['startDate'],
+                                'fn_end_time': data_bean['endDate'],
+                                'fn_update_time': util.time_utils.get_current_time(),
+                                'fp_p_id': data_bean['plazaId'],
+                                'fn_aid': data_bean['id']
+                            }
                             # print(update_sql)
                             update_count += cursor.execute(update_sql)
                         else:
                             # print("insert data_bean : %s" % (str(data_bean)))
-                            insert_sql = base_insert_sql % (data_bean['title'], data_bean['description'], data_bean['subtitle'], data_bean['pic'],
-                                                            data_bean['startDate'], data_bean['endDate'], data_bean['id'], data_bean['plazaId'], util.time_utils.get_current_time())
+                            insert_sql = base_insert_sql % {
+                                'fn_title': data_bean['title'],
+                                'fn_description': data_bean['description'],
+                                'fn_subtitle': data_bean['subtitle'],
+                                'fn_logo': data_bean['pic'],
+                                'fn_start_time': data_bean['startDate'],
+                                'fn_end_time': data_bean['endDate'],
+                                'fp_p_id': data_bean['plazaId'],
+                                'fn_aid': data_bean['id'],
+                                'fn_create_time': util.time_utils.get_current_time()
+                            }
                             # print(insert_sql)
                             insert_count += cursor.execute(insert_sql)
                         db.commit()
-                    except:
+                    except Exception as e:
+                        print(e)
                         db.rollback()
                         print("execute sql fail " + plaza_city_name + " " + plaza_name, sys.exc_info())
                 print("ffan_news  operate db threadName : %s  data.len : %d  progress : %s  result_data len : %s  insertCount : %d  updateCount : %d  offset : %d  retry_count : %d"
@@ -88,12 +137,15 @@ def get_data(thread_name, data_list):
                     offset += size
                 else:
                     break
-            except:
+            except Exception as e:
+                print(e)
                 print(sys.exc_info())
                 retry_count += 1
     db.close()
+    print("activity list operate db threadName : %s 耗时：%s 秒" % (thread_name, (util.time_utils.get_current_time() - start_time)))
 
 
+# 开启线程类
 class OperateThread(threading.Thread):
     def __init__(self, thread_id, data_list):
         threading.Thread.__init__(self)
@@ -104,26 +156,28 @@ class OperateThread(threading.Thread):
         get_data(self.threadId, self.dataList)
 
 
-def start_get_data():
-    thread_count = 5
+# thread_count 大于0开启线程，否则直接在线程运行
+def start_get_data(thread_count=0):
     # 打开数据库连接
-    db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
-    cursor = db.cursor()
+    db, cursor = ffan_db_config.get_db_config()
+
     select_sql = "select fp_p_id,fp_p_name,fp_city_id,fp_city from ffan_poi"
     cursor.execute(select_sql)
     sql_result = cursor.fetchall()
-    print("plaza size : %s" % (len(sql_result)))
+    print("activity plaza size : %s" % (len(sql_result)))
 
-    thread_data_size = math.ceil(len(sql_result) / thread_count)
-
-    for i in range(thread_count):
-        begin = i * thread_data_size
-        end = (i + 1) * thread_data_size
-        OperateThread(i+1, sql_result[begin:end]).start()
+    if thread_count > 0:
+        thread_data_size = math.ceil(len(sql_result) / thread_count)
+        for i in range(thread_count):
+            begin = i * thread_data_size
+            end = (i + 1) * thread_data_size
+            OperateThread(i+1, sql_result[begin:end]).start()
+    else:
+        get_data('caller thread', sql_result)
 
 
 if __name__ == "__main__":
-    start_get_data()
+    start_get_data(5)
 
 
 

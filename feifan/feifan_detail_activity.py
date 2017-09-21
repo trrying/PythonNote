@@ -1,7 +1,6 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from urllib import parse
-import pymysql
 import threading
 import math
 import util.time_utils
@@ -12,14 +11,16 @@ def get_detail(thread_name, data_list):
     # 打开数据库连接
     print(ffan_db_config.get_info())
 
-    db = pymysql.connect(ffan_db_config.host, ffan_db_config.user_name, ffan_db_config.password,
-                         ffan_db_config.database_name, charset=ffan_db_config.charset)
-    cursor = db.cursor()
+    # 打开数据库连接
+    db, cursor = ffan_db_config.get_db_config()
+
     print("data_list len : %d " % (len(data_list)))
 
-    baseUrl = "http://h5.ffan.com/app/activity?aid=%s&cityId=%s&plazaId=%s&display_type=html"
+    base_url = "http://h5.ffan.com/app/activity?aid=%s&cityId=%s&plazaId=%s&display_type=html"
 
     base_update_sql = """update ffan_news set fn_apply_store='%s', fn_details='%s', fn_update_time='%s' WHERE fp_p_id = '%s' and fn_aid = '%s'"""
+
+    start_time = util.time_utils.get_current_time()
 
     for index, data_bean in enumerate(data_list):
         retry_count = 0
@@ -31,9 +32,9 @@ def get_detail(thread_name, data_list):
                 city_id = data_bean[1]
                 plaza_id = data_bean[2]
 
-                url = baseUrl % (aid, city_id, plaza_id)
+                url = base_url % (aid, city_id, plaza_id)
                 # print("url "+url)
-                html = urlopen(url)
+                html = ffan_db_config.request_content(url)
                 # print("html "+str(html))
                 bs = BeautifulSoup(html, 'lxml')
 
@@ -109,6 +110,8 @@ def get_detail(thread_name, data_list):
             except Exception as e:
                 print(e)
                 retry_count += 1
+    db.close()
+    print("activity detail operate db threadName : %s 耗时：%s 秒" % (thread_name, (util.time_utils.get_current_time() - start_time)))
 
 
 class OperateThread(threading.Thread):
@@ -121,22 +124,23 @@ class OperateThread(threading.Thread):
         get_detail(self.threadId, self.dataList)
 
 
-def get_all_coupon():
-    thread_count = 5
+def get_all_coupon(thread_count=0):
     # 打开数据库连接
-    db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
-    cursor = db.cursor()
+    db, cursor = ffan_db_config.get_db_config()
+
     select_sql = "SELECT n.fn_aid,p.fp_city_id,n.fp_p_id FROM ffan_poi AS p, ffan_news n WHERE p.fp_p_id = n.fp_p_id"
     cursor.execute(select_sql)
     sql_result = cursor.fetchall()
-    print("coupon size : %s" % (len(sql_result)))
+    print("activity size : %s" % (len(sql_result)))
 
-    thread_data_size = math.ceil(len(sql_result) / thread_count)
-    # OperateThread(1, sql_result).start()
-    for i in range(thread_count):
-        begin = i * thread_data_size
-        end = (i + 1) * thread_data_size
-        OperateThread(i+1, sql_result[begin:end]).start()
+    if thread_count > 0:
+        thread_data_size = math.ceil(len(sql_result) / thread_count)
+        for i in range(thread_count):
+            begin = i * thread_data_size
+            end = (i + 1) * thread_data_size
+            OperateThread(i+1, sql_result[begin:end]).start()
+    else:
+        get_detail('caller thread', sql_result)
 
 
 if __name__ == "__main__":
