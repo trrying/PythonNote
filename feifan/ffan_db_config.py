@@ -1,11 +1,12 @@
 import pymysql
 import requests
 
-test_db_config = 1
-official_db_config = 2
+test_db = 1
+official_db = 2
+online_db = 3
 
 # 启用配置
-db_config = test_db_config
+db_config = online_db
 
 host = ""
 port = ""
@@ -24,21 +25,28 @@ def get_info():
                "'charset':'" + charset + "'," +
                "}")
 
-if db_config == test_db_config:
+if db_config == test_db:
     # db = pymysql.connect("192.168.1.4", "root", "12345", "spider", charset='utf8')
-    print("user test_db_config")
+    print("user test_db")
     host = "192.168.1.4"
     user_name = "root"
     password = "12345"
     database_name = "spider"
     print(get_info())
-elif db_config == official_db_config:
+elif db_config == official_db:
     # 地址10.10.41.149 账号spider 密码spider@svYVGKxC 数据库: spider_data
-    print("user official_db_config")
+    print("user official_db")
     host = "10.10.41.149"
     user_name = "spider"
     password = "spider@svYVGKxC"
     database_name = "spider_data"
+    print(get_info())
+elif db_config == online_db:
+    print("user online_db")
+    host = "10.10.41.149"
+    user_name = "front"
+    password = "front@qazxsw3#edc"
+    database_name = "mappush"
     print(get_info())
 
 

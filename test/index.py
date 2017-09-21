@@ -158,7 +158,7 @@ print(test_config.charset)
 
 
 
-print(datetime.datetime.now().hour)
+print(datetime.datetime.now().weekday())
 print(datetime.datetime.now())
 
 # while 1:
@@ -166,8 +166,7 @@ print(datetime.datetime.now())
 #     time.sleep(1*5)
 
 
-localtime = time.localtime()
-weekday = time.strftime("%w", localtime)
+weekday = time.strftime("%w", time.localtime())
 print(weekday)
 
 

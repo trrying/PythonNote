@@ -85,20 +85,22 @@ class GetPoiThread(threading.Thread):
 
 
 if __name__ == '__main__':
+    last_run_day = 0
     while 1:
-        now_time = datetime.datetime.now()
-        print("main time : " + str(now_time))
-        weekday = now_time.weekday()
+        weekday = time.strftime("%w", time.localtime())
+        print("main time : %s  weekday : %s" % (str(datetime.datetime.now()), weekday))
         # if weekday == 1:
         #     GetPoiThread().start()
         # if weekday in (1, 3, 5):
         #     GetCouponThread().start()
         #     GetActivityThread().start()
         # 周 1/3/5 去获取更新数据库
-        if weekday in (1, 3, 5):
+        if weekday in (1, 3, 5) and weekday != last_run_day:
+            last_run_day = weekday
+            print("run")
             get_all()
-        # 十分钟调用一次
-        time.sleep(60 * 30)
+        # 2个小时调用一次
+        time.sleep(60 * 60 * 2)
 
 
 
