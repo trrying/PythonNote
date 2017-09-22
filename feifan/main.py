@@ -2,8 +2,11 @@ import threading
 import feifan_poi
 import feifan_coupon
 import feifan_detail_coupon
+import feifan.feifan_coupon_pic
 import feifan_activity
 import feifan_detail_activity
+import feifan.feifan_activity_pic
+
 import time
 import datetime
 
@@ -19,7 +22,7 @@ def get_coupon():
     # 获取优惠卷详情
     feifan_detail_coupon.get_all_coupon()
     # 获取图片上传七牛
-    pass
+    feifan.feifan_coupon_pic.get_data()
 
 
 def get_activity():
@@ -28,7 +31,7 @@ def get_activity():
     # 获取活动详情
     feifan_detail_activity.get_all_coupon()
     # 获取图片上传七牛
-    pass
+    feifan.feifan_activity_pic.get_data()
 
 
 def get_all():
@@ -85,7 +88,12 @@ class GetPoiThread(threading.Thread):
 
 
 if __name__ == '__main__':
-    last_run_day = 0
+    # 48小时更新一次
+    update_interval = 60 * 60 * 48
+    last_run_day = time.time()
+    input_msg = input("是否立即更新(Y/N)：")
+    if input_msg in ('Y', 'y'):
+        last_run_day = 0
     while 1:
         weekday = time.strftime("%w", time.localtime())
         print("main time : %s  weekday : %s" % (str(datetime.datetime.now()), weekday))
@@ -94,13 +102,13 @@ if __name__ == '__main__':
         # if weekday in (1, 3, 5):
         #     GetCouponThread().start()
         #     GetActivityThread().start()
-        # 周 1/3/5 去获取更新数据库
-        if weekday in (1, 3, 5) and weekday != last_run_day:
-            last_run_day = weekday
-            print("run")
+
+        # 48小时更新一次
+        if time.time() - last_run_day > update_interval:
+            last_run_day = time.time()
             get_all()
-        # 2个小时调用一次
-        time.sleep(60 * 60 * 2)
+        # 睡眠30分钟
+        time.sleep(60 * 30)
 
 
 

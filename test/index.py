@@ -170,10 +170,15 @@ weekday = time.strftime("%w", time.localtime())
 print(weekday)
 
 
+for i in range(10):
+    print(i)
+    if i == 5:
+        break
 
 
+input_msg = input("是否立即更新(Y/N)：")
 
-
+print(input_msg)
 
 
 

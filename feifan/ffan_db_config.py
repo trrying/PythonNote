@@ -78,6 +78,10 @@ def request_content(url):
     return requests.get(url, headers=headers).content
 
 
+def request_response(url):
+    return requests.get(url, headers=headers)
+
+
 
 
 

@@ -45,7 +45,7 @@ def get_plaza():
 
                 # 拼接url，请求获取json字符串数据
                 url = base_url % (city_id, str(size), str(page))
-                plaza_result_json_str = requests.get(url, headers=headers).text.encode('latin-1').decode('unicode_escape').replace("\n", "").replace("\t", "").replace("\r", "")
+                plaza_result_json_str = ffan_db_config.request(url)
 
                 # 解析json数据，获取最终的广场列表
                 plaza_result = json.loads(plaza_result_json_str)
@@ -102,8 +102,8 @@ def get_plaza():
 
 # 获取所有城市列表
 def get_city_list():
-    city_response = urllib.request.urlopen('https://api.ffan.com/ffan/v3/cities')
-    city_response_json_str = city_response.read().decode('utf-8')
+    url = 'https://api.ffan.com/ffan/v3/cities'
+    city_response_json_str = ffan_db_config.request(url)
     city_result = json.loads(city_response_json_str)
     return city_result['data']['cityList']
 
